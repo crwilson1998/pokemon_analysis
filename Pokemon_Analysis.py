@@ -16,7 +16,6 @@ print(pokemon.shape)
 print(pokemon.dtypes)
 print(pokemon.describe())
 print(pokemon.isna().sum())
-print(pokemon.loc[pokemon.duplicated()])
 
 # Cleaning the data for later use
 
@@ -26,20 +25,27 @@ non_legendary = pokemon[pokemon['Legendary'] == False]
 non_legendary.rename({'#': 'Number'},axis=1,inplace=True)
 non_legendary = non_legendary.set_index('Number')
 non_legendary.drop('Legendary', inplace=True, axis=1)
-non_legendary = non_legendary[non_legendary['Name'].str.contains("Mega") == False]
-# print(non_legendary.columns)
-# print(non_legendary.head(10))
+non_legendary['Name'] = non_legendary['Name'].str.replace(r'(\w+)(Mega)? \1', r'\1', regex=True)
+
+# Now I want to take  look at the changes
+print(non_legendary.head(10))
+print(non_legendary.tail(10))
+print(non_legendary.columns)
+print(non_legendary.shape)
+print(non_legendary.dtypes)
+print(non_legendary.describe())
+print(non_legendary.isna().sum())
 
 
 # Seeing how many non_legendary pokemon are in each region. My goal here is to see the distribution of non_legendary pokemon bewtween the different
 # generation. I hope that there is not a large difference in the total amount of non_legendary
-# ax = non_legendary.groupby('Generation') \
-#             .size() \
-#             .plot(kind='bar',
-#                   title='Number of Pokemon Per Generation')
-# ax.set_xlabel('Generation')
-# ax.set_ylabel('Number of Pokemon')
-# plt.show()
+ax = non_legendary.groupby('Generation') \
+            .size() \
+            .plot(kind='bar',
+                  title='Number of Pokemon Per Generation')
+ax.set_xlabel('Generation')
+ax.set_ylabel('Number of Pokemon')
+plt.show()
 
 
 # Viewing the distribution of the Attack, Defense, and Speed stats. I want to check for outliers as this might also skew
@@ -59,12 +65,12 @@ non_legendary = non_legendary[non_legendary['Name'].str.contains("Mega") == Fals
 # Viewing the correlation between all stats. One thing to note is while my main focus is Attack, Defense, and Speed, the
 # "special statistics" are something to also consider when choosing a team
 sns.pairplot(non_legendary,vars=['Attack','Defense','Sp. Atk','Sp. Def','Speed'],hue='Generation')
-plt.show()
+# plt.show()
 
 pokemon_corr = non_legendary[['HP','Attack','Defense','Sp. Atk','Sp. Def','Speed']].corr()
 sns.heatmap(pokemon_corr,annot=True)
 plt.title('Correlation Between Different Pokemon Stats')
-plt.show()
+# plt.show()
 
 # minor correltion between defense and sp. def none between atk and sp. atk speed and defense negative correlation 
 
@@ -117,7 +123,7 @@ legendary = pokemon[pokemon['Legendary'] == True]
 legendary.rename({'#': 'Number'},axis=1,inplace=True)
 legendary = legendary.set_index('Number')
 legendary.drop('Legendary', inplace=True, axis=1)
-legendary = legendary[legendary['Name'].str.contains("Mega") == False]
+legendary['Name'] = legendary['Name'].str.replace(r'(\w+)(Mega)? \1', r'\1', regex=True)
 # print(legendary.columns)
 # print(legendary.head(10))
 
